@@ -1,0 +1,277 @@
+    <!DOCTYPE html>
+    <html lang="es">
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>WhatsApp by Jorge</title>
+
+        <link rel="shortcut icon" href="https://icones.pro/wp-content/uploads/2021/02/icone-du-logo-whatsapp-violet.png" type="image/x-icon">
+
+        <script src="https://kit.fontawesome.com/0c06a27afa.js" crossorigin="anonymous"></script>
+
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js" integrity="sha384-w76AqPfDkMBDXo30jS1Sgez6pr3x5MlQ1ZAGC+nuZB+EYdgRZgiwxhTBTkF7CXvN" crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js" integrity="sha384-oBqDVmMz9ATKxIep9tiCxS/Z9fNfEXiDAYTujMAeBAsjFuCZSmKbSSUnQlmh/jp3" crossorigin="anonymous"></script>
+        <link rel="stylesheet" href="./stylesheets/style.css">
+
+        <script src="https://code.jquery.com/jquery-3.6.1.js" integrity="sha256-3zlB5s2uwoUzrXK3BT7AX3FyvojsraNFxCc2vC/7pNI=" crossorigin="anonymous"></script>
+    </head>
+    <body>
+        <div class="container" id="homeContainer">
+            <nav class="nav">
+                <i class="fa-brands fa-whatsapp"></i>
+                <h1>Whatsapp Fake</h1>
+            </nav>
+            <div class="container-userForm">
+                <form action="" class="userForm">
+                    <input type="text" id="inputUsername" placeholder="Introduce tu nombre de usuario" required>
+                    <div class="avatars">
+                        <div class="avatar">
+                            <img src="https://static.vecteezy.com/system/resources/previews/024/183/502/non_2x/male-avatar-portrait-of-a-young-man-with-a-beard-illustration-of-male-character-in-modern-color-style-vector.jpg" alt="">
+                            <input type="radio" required name="avatar" value="https://static.vecteezy.com/system/resources/previews/024/183/502/non_2x/male-avatar-portrait-of-a-young-man-with-a-beard-illustration-of-male-character-in-modern-color-style-vector.jpg">
+                        </div>
+                        <div class="avatar">
+                            <img src="https://static.vecteezy.com/system/resources/previews/002/002/247/non_2x/beautiful-black-woman-avatar-character-icon-free-vector.jpg" alt="">
+                            <input type="radio" required name="avatar" value="https://static.vecteezy.com/system/resources/previews/002/002/247/non_2x/beautiful-black-woman-avatar-character-icon-free-vector.jpg">
+                        </div>
+                        <div class="avatar">
+                            <img src="https://static.vecteezy.com/system/resources/previews/002/002/263/non_2x/black-man-with-beard-avatar-character-free-vector.jpg" alt="">
+                            <input type="radio" required name="avatar" value="https://static.vecteezy.com/system/resources/previews/002/002/263/non_2x/black-man-with-beard-avatar-character-free-vector.jpg">
+                        </div>
+                        <div class="avatar">
+                            <img src="https://static.vecteezy.com/system/resources/previews/001/993/889/non_2x/beautiful-latin-woman-avatar-character-icon-free-vector.jpg" alt="">
+                            <input type="radio" required name="avatar" value="https://static.vecteezy.com/system/resources/previews/001/993/889/non_2x/beautiful-latin-woman-avatar-character-icon-free-vector.jpg">
+                        </div>
+                    </div>
+                    <select class="form-select" id="selectRoom" required aria-label="Default select example">
+                        <option value="1">Sala 1</option>
+                        <option value="2">Sala 2</option>
+                        <option value="3">Sala 3</option>
+                    </select>
+                    <input type="submit" id="joinBtn" value="UNIRSE A LA SALA">
+                </form>
+            </div>
+        </div>
+
+        <script src="/socket.io/socket.io.js"></script>
+        <script>        
+            var socket = io();
+            
+            var userForm = $(".userForm");
+            var form = document.getElementById('form');
+            var usernameForm = document.getElementById("usernameForm");
+            var usernameInput = document.getElementById("usernameInput");
+            var userTyping = document.getElementsByClassName("users-title")[0];
+
+            $(document).on("submit", ".userForm", function(e) {
+                e.preventDefault();
+                var username = $("#inputUsername").val();
+                var room = $("#selectRoom").val();
+                var img = $("input[name='avatar']:checked").val();
+
+                socket.emit('setUsername', {username: username, room: room, userImg: img});
+
+                $("#usernameInput").val();
+
+                $(".container").html(`
+                    <nav class="nav">
+                        <i class="fa-brands fa-whatsapp"></i>
+                        <h1>Whatsapp 2</h1>
+                    </nav>
+                    <div class="whatsapp-container">
+                        <div id="roomName">
+                                SALA ${room} - Usuarios conectados: <span id="usersConnected"></span>
+                            </div>
+                        <div class="users">
+                            <h2 class="leftRoom">Abandonar Sala <i class="fa-solid fa-right-from-bracket"></i></h2>
+                            <div class="usersConnected"></div>
+                        </div>
+                        <div class="messagesCont">
+                            <div class="messages">
+                            </div>
+                            <form action="" id="form">
+                                <input type="text" id="input" placeholder="Mensaje..." autocomplete="off">
+                                <button id="submit"><i class="fa-solid fa-paper-plane"></i></button>
+                                <input type="file" id="fichero" name="fichero">
+                                <button type="button" id="uploadButton">Upload</button>
+                            </form>
+                        </div>
+                    </div>
+                    <div class="mobileUsersConnected"></div>
+                    <span class="usersBtn"><i class="fa-solid fa-xmark"></i></span>
+                `);
+            })
+
+            $(document).on('submit', '#form', function(e) {
+                e.preventDefault();
+                if (input.value) {
+                    var today = new Date();
+                    if(today.getMinutes() < 10){
+                        var time = today.getHours() + ":0" + today.getMinutes();    
+                    }else{
+                        var time = today.getHours() + ":" + today.getMinutes();
+                    }
+                    socket.emit('message', {msg: input.value, time: time});
+                    input.value = '';
+                }
+            });
+
+            socket.on('usersConnected', (users)=>{
+                $(".usersConnected").html("");
+                for(user of users){
+                    $(".usersConnected").append(`
+                    <div class="user">
+                        <img src="${user.userImg}">
+                        <div class="user-info">
+                            <span class="user-info-name">${user.username}</span>    
+                            <span class="isTyping">escribiendo...</span>
+                            <input type="hidden" id="${user.userID}"/>
+                        </div>
+                    </div>
+                    `);
+                    window.scrollTo(0, document.body.scrollHeight);
+                }
+            })
+            socket.on('usersConnected', (users)=>{
+                $(".mobileUsersConnected").html("");
+                for(user of users){
+                    $(".mobileUsersConnected").append(`
+                    <div class="user">
+                        <img src="${user.userImg}">
+                        <div class="user-info">
+                            <span class="user-info-name">${user.username}</span>    
+                            <span class="isTyping">escribiendo...</span>
+                            <input type="hidden" id="${user.userID}"/>
+                        </div>
+                    </div>
+                    `);
+                    window.scrollTo(0, document.body.scrollHeight);
+                }
+            })
+
+            socket.on("numUsersConnected", (num)=>{
+                $("#usersConnected").html(num)
+            })
+
+            socket.on("userHasConnected", (username)=>{
+                $(".messages").append(`
+                    <div class="userConnection">
+                        ${username} se ha conectado
+                    </div>
+                `);
+                window.scrollTo(0, document.body.scrollHeight);
+            })
+
+            socket.on("userHasDisconnected", (username)=>{
+                $(".messages").append(`
+                    <div class="userConnection">
+                        ${username} se ha desconectado <i class="fa-solid fa-right-from-bracket"></i>
+                    </div>
+                `);
+                window.scrollTo(0, document.body.scrollHeight);
+            })
+
+            socket.on('message', function(datosMsg) {
+                if(socket.id == datosMsg.serverID){
+                    nuevoMensaje("ownUserMessage", datosMsg.username, datosMsg.msg, datosMsg.time)
+                }else{
+                    nuevoMensaje("otherUserMessage", datosMsg.username, datosMsg.msg, datosMsg.time)
+                }
+                $(".messages").animate(
+                    { scrollTop: $(".messages").prop("scrollHeight") },
+                    500
+                );
+            });
+
+            $(document).on('keyup', '#input', function(e) {
+                if($("#input").val() != ""){
+                    socket.emit('userTyping',  {isTyping: true});
+                }else{
+                    socket.emit('userTyping',  {isTyping: false});
+                }
+            })
+
+            socket.on("userTyping", (data)=>{
+                if(!data.isTyping) {
+                    $(`#${data.userID}`).siblings('.isTyping').css("display", "none"); 
+                }else{
+                    $(`#${data.userID}`).siblings('.isTyping').css("display", "block"); 
+                }
+            })
+
+            function nuevoMensaje(typeClass, username, msg, timeMsg){
+                var nuevoMensaje = "";
+                if(typeClass == "ownUserMessage"){
+                    var nuevoMensaje = $(`
+                    <div class="${typeClass}">
+                        <span class="msg">${msg}</span>
+                        <span class="timeMsg">${timeMsg}</span>
+                    </div>
+                    `);
+                }else{
+                    var nuevoMensaje = $(`
+                    <div class="${typeClass}">
+                        <span class="usernameMsg">${username}</span>
+                        <span class="msg">${msg}</span>
+                        <span class="timeMsg">${timeMsg}</span>
+                    </div>
+                `);
+                }
+
+                $(".messages").append(nuevoMensaje)
+            }
+            
+            $(document).on("click", ".usersBtn", ()=>{
+                $(".mobileUsersConnected").toggleClass("openMenu");
+                $(".usersBtn").toggleClass("block");
+            })
+
+            $(document).on("click", ".leftRoom", ()=>{
+                window.location.reload();
+            })
+
+
+            $(document).on("click", "#roomName", ()=>{
+                $(".mobileUsersConnected").toggleClass("openMenu");
+                $(".usersBtn").toggleClass("block");
+            })
+
+            $(document).on("click", "#joinBtn", ()=>{
+                setTimeout(() => {
+                    $(".nav").css("display", "none");
+                }, 10);
+            })
+            
+
+        const uploadButton = document.getElementById('uploadButton');
+        const fichero = document.getElementById('fichero');
+        const endpoint = 'http://127.0.0.1:3000/upload';
+        document.addEventListener("DOMContentLoaded", function() {
+            const uploadButton = document.getElementById('uploadButton');
+            uploadButton.addEventListener('click', () => {
+            const file = fichero.files[0];
+            const formData = new FormData();
+            formData.append('fichero', file);
+            fetch(endpoint, {
+                method: 'POST',
+                body: formData
+            })
+                .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                            })
+                .then(data => {
+                console.log(data);
+                alert('File uploaded successfully!');
+                })
+                .catch(error => {
+                console.error(error);
+                alert('Error uploading file');
+                });          
+        });
+        });
+        </script>
+    </body>
+    </html>
